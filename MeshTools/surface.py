@@ -128,7 +128,7 @@ class Surface:
         if method == "cellarea":
             sfremeshsurf = vmtkscripts.vmtkSurfaceRemeshing()
             sfremeshsurf.TargetArea = 0.1
-            sfremeshsurf.MinAreaFactor = 0.2
+            sfremeshsurf.MinAreaFactor = 0.3
             sfremeshsurf.Surface = self.surface
             sfremeshsurf.Execute()
         elif method == "adaptive":
