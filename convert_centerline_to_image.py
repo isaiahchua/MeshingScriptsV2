@@ -1,5 +1,6 @@
-import os
+import sys, os
 import argparse
+import vtk
 from vmtk import vmtkscripts
 import numpy as np
 import SimpleITK as sitk
@@ -16,23 +17,9 @@ def ResampleCenterlines(centerlinePolyData, resamplingDistance):
     return resampler.Surface
 
 def convertPatient2ImageCoords(pts, origin, spacing):
-    return np.round((pts - origin)/spacing).astype(np.int)
+    return np.round((pts + origin)/spacing).astype(np.int)
 
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description=
-                "Convert centerlines from polydata to Nifti format")
-    parser.add_argument("src", metavar="SRC", type=str, default=None,
-                        help="The parent directory where the surfaces are stored.")
-    parser.add_argument("dest", metavar="DEST", type=str, default=None,
-                        help="Path to save converted centerlines file in .nii.gz format.")
-    parser.add_argument("ref", metavar="REF", type=str, default=None,
-                        help="Path to reference image file.")
-    args = parser.parse_args()
-
-    clPath = args.src
-    savePath = args.dest
-    imgPath = args.ref
+def main(clPath, savePath, imgPath):
 
     clReader = vmtkscripts.vmtkSurfaceReader()
     clReader.InputFileName = clPath
@@ -54,13 +41,34 @@ if __name__ == "__main__":
 
     clx, cly, clz = convertPatient2ImageCoords(clPoints, origin, spacing).T
     clCoords[clz, cly, clx] = 1
+    direction_matrix = np.array([1., 0., 0. , 0., 1., 0., 0., 0., 1.])
 
     print("\nSaving centerline image...")
     clImage = sitk.GetImageFromArray(clCoords)
     clImage.SetOrigin(origin[0])
     clImage.SetSpacing(spacing[0])
+    clImage.SetDirection(direction_matrix)
     imgWriter = sitk.ImageFileWriter()
     imgWriter.SetFileName(savePath)
     imgWriter.Execute(clImage)
 
     print("\nCenterline successfully converted.")
+    return
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description=
+                "Convert centerlines from polydata to Nifti format using a reference image file for origin and spacing information.")
+    parser.add_argument("src", metavar="SRC", type=str, default=None,
+                        help="The parent directory where the surfaces are stored.")
+    parser.add_argument("dest", metavar="DEST", type=str, default=None,
+                        help="Path to save converted centerlines file in .nii.gz format.")
+    parser.add_argument("ref", metavar="REF", type=str, default=None,
+                        help="Path to reference image file.")
+    args = parser.parse_args()
+
+    clPath = args.src
+    savePath = args.dest
+    imgPath = args.ref
+
+    main(clPath, savePath, imgPath)

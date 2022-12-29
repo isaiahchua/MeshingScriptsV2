@@ -41,10 +41,14 @@ class ProcessPath(argparse.Action):
         if self.dest == "src":
             if (values == None) or (values == ".") or (values == "./"):
                 values = os.getcwd()
+            values = os.path.abspath(values)
             if values[-1] != "/":
                 values += "/"
+        elif self.dest == "log":
+            values = os.path.abspath(values)
         elif self.dest == "sub":
             for i, dir in enumerate(values):
+                values = os.path.abspath(values)
                 if dir[-1] != "/":
                     values[i] += "/"
         setattr(namespace, self.dest, values)
@@ -65,7 +69,7 @@ def Workflow(fileManager, issueLog, saveList=False, verbose=False, continuous=Fa
         try:
             centerlineFilter = Centerlines()
             centerlineFilter.load(sfpath=surfacePath)
-            centerlineFilter.create_cl2()
+            centerlineFilter.create_cl2(view_output=False)
             if not noWindow:
                 centerlineFilter.view()
             if continuous:
@@ -155,7 +159,7 @@ if __name__ == "__main__":
             "Create centerlines for successfully meshed vessels.")
     parser.add_argument("src", metavar="SRC", type=str, default=None, action=ProcessPath,
                         help="The parent directory where the surfaces are stored.")
-    parser.add_argument("-l","--log", metavar="PATH", type=str, default=None,
+    parser.add_argument("-l","--log", metavar="PATH", type=str, default=None, action=ProcessPath,
                         help=("Where to save the log file "
                               "during runtime. Default: <SRC>/log.csv"))
     parser.add_argument("-r", "--retrieve-patients", metavar="PATH",
@@ -176,10 +180,11 @@ if __name__ == "__main__":
     parser.add_argument("-w", "--no-window", dest="noWindow", action="store_true",
                         help=("Do not render the finished task in a window. "))
     args = parser.parse_args()
+
     if args.log == None:
-        args.log = args.src + "log.csv"
+        args.log = os.path.join(os.path.abspath(args.src), "log.csv")
     if args.pat == None:
-        args.pat = args.src + "patient_paths.pkl"
+        args.pat = os.path.join(os.path.abspath(args.src), "patient_paths.pkl")
 
     print(f"\nParent Directory : {args.src}")
     print(f"Log File Directory : {args.log}")

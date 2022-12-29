@@ -66,7 +66,7 @@ class Centerlines:
         viewer = Visualize(centerlines=self.centerlines, surface=self.surface)
         viewer.view_centerlines()
 
-    def create_cl2(self):
+    def create_cl2(self, view_output=True):
         self.prev_centerlines = self.centerlines
         clcreator = vmtkCenterlinesNetwork2()
         clcreator.AppendOpenEnds = 1
@@ -74,7 +74,8 @@ class Centerlines:
         clcreator.Execute()
         self.centerlines = clcreator.Centerlines
         viewer = Visualize(centerlines=self.centerlines, surface=self.surface)
-        viewer.view_centerlines()
+        if view_output:
+            viewer.view_centerlines()
 
     def convert_to_array(self):
         if self.centerlines == None:

@@ -42,16 +42,59 @@
 
 ## Python Scripts
 
+**Tip:** For python scripts, run with ``-h`` flag to see additional options/help.
+
 **view.py**
 
-High-level wrapper for quickly viewing vessel centerlines, surfaces and meshes
+High-level wrapper for quickly viewing vessel centerlines, surfaces and meshes,
+sample vessel provided in the "example_data" folder.
 
 Example usage:
     
-    python view.py -c example_data/centerlines/aorta_clnet2.vtp
+    python view.py -s example_data/demo_centerlines/aorta_cl.vtp example_data/ref_surface/aorta_clip.vtp
 
-For additional help:
+**meshing.py**
 
-    python view.py -h
+Workflow for creating a blood vessel mesh where element size is determined based
+on the vessel size (adaptive). 
 
+Example usage:
 
+    python meshing.py -f example_data/demo_raw_surface/aorta.vtp
+
+**meshing.sh**
+
+Bash script that allow easy execution of common vmtk functions used to generate 
+vessel volumetric meshes.
+
+The script will ask for the parent directory of the input surface, the file path 
+from the parent directory of the input surface, and the save path of the output 
+file from the parent directory. 
+
+After which input the number corresponding to the function you want to execute.
+
+Example usage:
+
+    bash meshing.sh
+
+**convert_centerline_to_image.py**
+
+Create an image file (".nii.gz") from a surface file using a reference image to 
+set the origin and spacing of the image file. 
+
+Example usage:
+
+    python convert_centerline_to_image.py \
+    ./example_data/demo_centerlines/aorta_cl.vtp \
+    ./example_data/demo_centerlines/aorta_cl.nii.gz \
+    ./example_data/ref_image/Aorta_voi.mha
+
+**extract_multiple_centerlines.py**
+
+Recursively search a parent directory for surfaces and create centerlines in a
+mirror directory tree.
+
+Example usage:
+
+    python extract_multiple_centerlines.py -l ./example_data/demo_surface/log.csv \
+    -c -w ./example_data/demo_surface/

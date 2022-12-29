@@ -85,6 +85,13 @@ class Visualize:
     def view_cl_image(self):
         if self.climage == None:
             raise ValueError("No centerlines image")
+        if self.surface != None:
+            sfviewer = vmtkscripts.vmtkSurfaceViewer()
+            sfviewer.Display = 0
+            sfviewer.Opacity = 0.25
+            sfviewer.vmtkRenderer = self.renderer
+            sfviewer.Surface = self.surface
+            sfviewer.Execute()
         climgviewer = vmtkscripts.vmtkImageViewer()
         climgviewer.vmtkRenderer = self.renderer
         climgviewer.Image = self.climage
